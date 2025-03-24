@@ -445,8 +445,7 @@ def save_to_supabase(history_item):
         timestamp = datetime.now().isoformat()
         
         supabase_data = {
-            'id': history_item['id'],
-            'user_id': 'shared_user',  # 固定のユーザーID
+            'user_id': str(uuid.uuid4()),  # ユニークなユーザーIDを生成
             'mode': history_item['mode'],
             'input_preview': history_item['input'][:500],
             'result': history_item['result'],
@@ -454,13 +453,20 @@ def save_to_supabase(history_item):
             'created_at': timestamp
         }
         
-        
         if st.session_state.debug_mode:
             st.write("### デバッグ: 保存するデータ")
             st.json(supabase_data)
         
         # データを挿入
         response = supabase.table('summaries').insert(supabase_data).execute()
+        
+        # デバッグモードの場合、レスポンスを詳細に表示
+        if st.session_state.debug_mode:
+            st.write("### レスポンス詳細:")
+            st.write("レスポンスの型:")
+            st.write(type(response))
+            st.write("レスポンスの内容:")
+            st.json(response)
         
         return True
     except Exception as e:
@@ -475,7 +481,7 @@ def delete_from_supabase(history_id):
         return False
     
     try:
-        response = supabase.table('summaries').delete().eq('id', history_id).eq('user_id', st.session_state.persistent_user_id).execute()
+        response = supabase.table('summaries').delete().eq('id', history_id).execute()
         return True
     except Exception as e:
         st.error(f"削除に失敗しました: {str(e)}")
@@ -488,7 +494,7 @@ def delete_all_history_from_supabase():
         return False
     
     try:
-        response = supabase.table('summaries').delete().eq('user_id', st.session_state.persistent_user_id).execute()
+        response = supabase.table('summaries').delete().execute()
         return True
     except Exception as e:
         st.error(f"全履歴の削除に失敗しました: {str(e)}")
