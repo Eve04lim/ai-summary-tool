@@ -13,8 +13,9 @@ import json
 import traceback
 import streamlit as st
 
-# 環境変数の読み込み
-load_dotenv()
+api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
+supabase_url = st.secrets.get("SUPABASE_URL") or os.getenv("SUPABASE_URL")
+supabase_key = st.secrets.get("SUPABASE_KEY") or os.getenv("SUPABASE_KEY")
 
 # ページ設定
 st.set_page_config(
